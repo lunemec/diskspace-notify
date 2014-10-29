@@ -12,12 +12,14 @@ type Config struct {
 		Message string
 	}
 	Smtp struct {
-		Address  string
-		Port     int
-		Username string
-		Password string
+		Address       string
+		Port          int
+		Username      string
+		Password      string
+		AntiSpamDelay int
 	}
 	Check struct {
+		Delay      int
 		Threshold  float32
 		Mountpoint []string
 	}

@@ -42,7 +42,6 @@ func SendNotification(config *Config, eventQueue chan *Event) error {
 	body := ""
 
 	for event := range eventQueue {
-		fmt.Printf("Event: %v \n", event)
 		body += fmt.Sprintf(
 			config.Mail.Message+"\n",
 			event.mountPoint,
