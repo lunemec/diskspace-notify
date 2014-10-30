@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"syscall"
 )
 
@@ -10,7 +9,7 @@ type MountPointData struct {
 	mountPoint   string
 }
 
-func GetMountPointData(config *Config) <-chan *MountPointData {
+func GetMountPointData() <-chan *MountPointData {
 	var (
 		percentAvail *float32
 		err          error
@@ -18,15 +17,14 @@ func GetMountPointData(config *Config) <-chan *MountPointData {
 	out := make(chan *MountPointData)
 
 	go func() {
-		for _, mountPoint := range config.Check.Mountpoint {
+		for _, mountPoint := range Config.Check.Mountpoint {
 			fsStat, err = MountPointStatus(mountPoint)
 
 			if err != nil {
-				fmt.Printf("Unable to get Statfs data: %v", err)
+				Logger.Printf("Unable to get Statfs data: %v", err)
 			}
 
 			percentAvail = PercentAvailable(fsStat)
-			fmt.Printf("Percent of free space: %f, mountPoint: %v\n", *percentAvail, mountPoint)
 			out <- &MountPointData{percentAvail: percentAvail, mountPoint: mountPoint}
 		}
 		close(out)

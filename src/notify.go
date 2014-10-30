@@ -25,25 +25,30 @@ func GetEvent(percentAvail float32, mountPoint string) *Event {
 	return &Event{percentAvail: percentAvail, mountPoint: mountPoint}
 }
 
-func SendNotification(config *Config, eventQueue chan *Event) error {
+func SendNotification(eventQueue chan *Event) error {
 	/*
 		Collects all notification events and sends them according to config settings.
 	*/
+	// Do nothing without data in Queue.
+	if len(eventQueue) == 0 {
+		return nil
+	}
+
 	var err error
 
 	auth := smtp.PlainAuth(
 		"",
-		config.Smtp.Username,
-		config.Smtp.Password,
-		config.Smtp.Address,
+		Config.Smtp.Username,
+		Config.Smtp.Password,
+		Config.Smtp.Address,
 	)
-	serverAddr := fmt.Sprintf("%v:%d", config.Smtp.Address, config.Smtp.Port)
+	serverAddr := fmt.Sprintf("%v:%d", Config.Smtp.Address, Config.Smtp.Port)
 
 	body := ""
 
 	for event := range eventQueue {
 		body += fmt.Sprintf(
-			config.Mail.Message+"\n",
+			Config.Mail.Message+"\n",
 			event.mountPoint,
 			event.percentAvail,
 		)
@@ -51,22 +56,23 @@ func SendNotification(config *Config, eventQueue chan *Event) error {
 
 	message := fmt.Sprintf(
 		emailTemplate,
-		config.Mail.From,
-		strings.Join(config.Mail.Sendto, ", "),
-		config.Mail.Subject,
+		Config.Mail.From,
+		strings.Join(Config.Mail.Sendto, ", "),
+		Config.Mail.Subject,
 		body,
 	)
 
 	err = smtp.SendMail(
 		serverAddr,
 		auth,
-		config.Mail.From,
-		config.Mail.Sendto,
+		Config.Mail.From,
+		Config.Mail.Sendto,
 		[]byte(message),
 	)
 	if err != nil {
-		fmt.Printf("Error while sending email: %v", err)
+		Logger.Printf("Error while sending email: %v", err)
 	}
+	Logger.Printf("Sent notification.")
 
 	return err
 }

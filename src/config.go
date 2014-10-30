@@ -4,7 +4,7 @@ import (
 	"code.google.com/p/gcfg"
 )
 
-type Config struct {
+type ConfigData struct {
 	Mail struct {
 		From    string
 		Sendto  []string
@@ -25,12 +25,12 @@ type Config struct {
 	}
 }
 
-func LoadConfig(configFile string) (*Config, error) {
+func LoadConfig(configFile string) (*ConfigData, error) {
 	/*
 		Loads configuration file located under `configFile` path
 		and returns pointer to it.
 	*/
-	var config Config
+	var config ConfigData
 
 	err := gcfg.ReadFileInto(&config, configFile)
 	return &config, err
