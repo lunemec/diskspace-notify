@@ -2,6 +2,7 @@ Diskspace-notifier
 ==================
 Checks periodically for free disk space and alerts user via email when there is not enough free space (threshold set in config).
 
+It does not aim to replace any large monitoring tools, it was an excercise to learn **Go** and maybe create something useful.
 
 Goals
 -----
@@ -26,4 +27,4 @@ Usage
 Note: It cannot daemonize itself, you should use some startup manager (init.d or supervisor).
 
 
-Ideas are welcome!
+**Ideas are welcome!**
