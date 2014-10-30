@@ -32,6 +32,12 @@ If you want to see how the email looks like, you can set **threshold** value in 
 **Ideas are welcome!**
 
 
+Build
+-----
+
+    go build -o diskspace-notify src/*.go
+
+
 License
 -------
 Copyright (c) 2014, Lukas Nemec
