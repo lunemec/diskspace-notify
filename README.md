@@ -32,6 +32,16 @@ If you want to see how the email looks like, you can set **threshold** value in 
 **Ideas are welcome!**
 
 
+Get the code
+------------
+
+    go get go get github.com/lunemec/diskspace-notify/diskspace-notify
+
+or
+
+    git clone git@github.com:lunemec/diskspace-notify.git
+
+
 Build
 -----
 
