@@ -9,6 +9,7 @@ type MountPointData struct {
 	mountPoint   string
 }
 
+// Returns statfs information for each mountpoint in a channel.
 func GetMountPointData() <-chan *MountPointData {
 	var (
 		percentAvail *float32
@@ -32,20 +33,16 @@ func GetMountPointData() <-chan *MountPointData {
 	return out
 }
 
+// Checks specified mount-point and returns its status.
 func MountPointStatus(mountpoint string) (*syscall.Statfs_t, error) {
-	/*
-		Checks specified mount-point and returns its status.
-	*/
 	var fsStats syscall.Statfs_t
 
 	err := syscall.Statfs(mountpoint, &fsStats)
 	return &fsStats, err
 }
 
+// Calculates how many percent are available given input fsStat data.
 func PercentAvailable(fsStat *syscall.Statfs_t) *float32 {
-	/*
-		Calculates how many percent are available given input fsStat data.
-	*/
 	var (
 		totalSize    uint64
 		totalAvail   uint64

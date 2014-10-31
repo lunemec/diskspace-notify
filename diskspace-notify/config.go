@@ -25,11 +25,9 @@ type ConfigData struct {
 	}
 }
 
+// Loads configuration file located under `configFile` path
+// and returns pointer to it.
 func LoadConfig(configFile string) (*ConfigData, error) {
-	/*
-		Loads configuration file located under `configFile` path
-		and returns pointer to it.
-	*/
 	var config ConfigData
 
 	err := gcfg.ReadFileInto(&config, configFile)

@@ -18,17 +18,13 @@ Subject: %v
 %v
 `
 
+// Creates notification event. These events will be collected and sent in one email.
 func GetEvent(percentAvail float32, mountPoint string) *Event {
-	/*
-		Creates notification event. These events will be collected and sent in one email.
-	*/
 	return &Event{percentAvail: percentAvail, mountPoint: mountPoint}
 }
 
+// Collects all notification events and sends them according to config settings.
 func SendNotification(eventQueue chan *Event) error {
-	/*
-		Collects all notification events and sends them according to config settings.
-	*/
 	// Do nothing without data in Queue.
 	if len(eventQueue) == 0 {
 		return nil

@@ -22,12 +22,10 @@ var (
 	Logger *log.Logger
 )
 
+// Initializes log depending on logFilePath variable.
+// If it is empty, it will log to `stderr`.
+// If not, it will create/append to a file on that path.
 func initLog(logFilePath *string) {
-	/*
-		Initializes log depending on logFilePath variable.
-		If it is empty, it will log to `stderr`.
-		If not, it will create/append to a file on that path.
-	*/
 	logFile := os.Stderr
 
 	if *logFilePath != "" {
@@ -43,10 +41,8 @@ func initLog(logFilePath *string) {
 	Logger = log.New(logFile, fmt.Sprintf("[%v] Diskspace-notify: ", time.Now()), log.Lshortfile)
 }
 
+// Initializes configuration file under path `configFile`.
 func initConfig(configFile *string) {
-	/*
-		Initializes configuration file under path `configFile`.
-	*/
 	Config, err = LoadConfig(*configFile)
 	if err != nil {
 		Logger.Fatal("Can't load configuration file %s, error: %s\n", *configFile, err)
