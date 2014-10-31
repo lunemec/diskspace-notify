@@ -35,7 +35,7 @@ If you want to see how the email looks like, you can set **threshold** value in 
 Get the code
 ------------
 
-    go get go get github.com/lunemec/diskspace-notify/diskspace-notify
+    go get github.com/lunemec/diskspace-notify/diskspace-notify
 
 or
 
