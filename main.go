@@ -54,7 +54,7 @@ func main() {
 	var (
 		event        *Event
 		mountPoint   string
-		percentAvail *float32
+		percentAvail float32
 	)
 
 	// Parse command line arguments.
@@ -78,8 +78,8 @@ func main() {
 			percentAvail = mountPointData.percentAvail
 			mountPoint = mountPointData.mountPoint
 
-			if *percentAvail <= Config.Check.Threshold {
-				event = GetEvent(*percentAvail, mountPoint)
+			if percentAvail <= Config.Check.Threshold {
+				event = GetEvent(percentAvail, mountPoint)
 				EventQueue <- event
 			}
 		}

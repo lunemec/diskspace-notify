@@ -5,53 +5,37 @@ import (
 )
 
 type MountPointData struct {
-	percentAvail *float32
+	percentAvail float32
 	mountPoint   string
 }
 
-// Returns statfs information for each mountpoint in a channel.
+// GetMountPointData returns statfs information for each mount point in a channel.
 func GetMountPointData() <-chan *MountPointData {
-	var (
-		percentAvail *float32
-		err          error
-	)
 	out := make(chan *MountPointData)
-
 	go func() {
 		for _, mountPoint := range Config.Check.Mountpoint {
-			fsStat, err = MountPointStatus(mountPoint)
-
+			statfs, err := MountPointStatus(mountPoint)
 			if err != nil {
-				Logger.Printf("Unable to get Statfs data: %v", err)
+				Logger.Printf("Unable to get statfs data for mount point %q: %v", mountPoint, err)
 			}
-
-			percentAvail = PercentAvailable(fsStat)
-			out <- &MountPointData{percentAvail: percentAvail, mountPoint: mountPoint}
+			out <- &MountPointData{percentAvail: PercentAvailable(statfs), mountPoint: mountPoint}
 		}
 		close(out)
 	}()
 	return out
 }
 
-// Checks specified mount-point and returns its status.
+// MountPointStatus checks specified mount point and returns its status.
 func MountPointStatus(mountpoint string) (*syscall.Statfs_t, error) {
-	var fsStats syscall.Statfs_t
-
-	err := syscall.Statfs(mountpoint, &fsStats)
-	return &fsStats, err
+	var statfs syscall.Statfs_t
+	err := syscall.Statfs(mountpoint, &statfs)
+	return &statfs, err
 }
 
-// Calculates how many percent are available given input fsStat data.
-func PercentAvailable(fsStat *syscall.Statfs_t) *float32 {
-	var (
-		totalSize    uint64
-		totalAvail   uint64
-		percentAvail float32
-	)
-
-	totalSize = uint64(fsStat.Bsize) * fsStat.Blocks
-	totalAvail = uint64(fsStat.Bsize) * fsStat.Bavail
-	percentAvail = float32(float64(totalAvail) / (float64(totalSize) / float64(100)))
-
-	return &percentAvail
+// PercentAvailable calculates how many percent are available given input statfs data.
+func PercentAvailable(statfs *syscall.Statfs_t) float32 {
+	if statfs.Blocks == 0 {
+		return 0
+	}
+	return float32(float64(statfs.Bavail) / float64(statfs.Blocks) * 100.0)
 }
