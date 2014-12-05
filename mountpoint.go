@@ -1,24 +1,32 @@
 package main
 
 import (
+	"github.com/dustin/go-humanize"
 	"syscall"
 )
 
-type MountPointData struct {
-	percentAvail float32
+type MountPoint struct {
+	percentAvail uint8
+	freeSpace    string // Output from humanize.
+	totalSize    string // Output frin humanize.
 	mountPoint   string
 }
 
-// GetMountPointData returns statfs information for each mount point in a channel.
-func GetMountPointData() <-chan *MountPointData {
-	out := make(chan *MountPointData)
+// MountPointData returns statfs information for each mount point in a channel.
+func MountPointData() <-chan *MountPoint {
+	out := make(chan *MountPoint)
 	go func() {
 		for _, mountPoint := range Config.Check.Mountpoint {
 			statfs, err := MountPointStatus(mountPoint)
 			if err != nil {
 				Logger.Printf("Unable to get statfs data for mount point %q: %v", mountPoint, err)
 			}
-			out <- &MountPointData{percentAvail: PercentAvailable(statfs), mountPoint: mountPoint}
+			out <- &MountPoint{
+				percentAvail: PercentAvailable(statfs),
+				freeSpace:    humanize.Bytes(statfs.Bavail * uint64(statfs.Bsize)),
+				totalSize:    humanize.Bytes(statfs.Blocks * uint64(statfs.Bsize)),
+				mountPoint:   mountPoint,
+			}
 		}
 		close(out)
 	}()
@@ -33,9 +41,9 @@ func MountPointStatus(mountpoint string) (*syscall.Statfs_t, error) {
 }
 
 // PercentAvailable calculates how many percent are available given input statfs data.
-func PercentAvailable(statfs *syscall.Statfs_t) float32 {
+func PercentAvailable(statfs *syscall.Statfs_t) uint8 {
 	if statfs.Blocks == 0 {
 		return 0
 	}
-	return float32(float64(statfs.Bavail) / float64(statfs.Blocks) * 100.0)
+	return uint8(float32(statfs.Bavail) / float32(statfs.Blocks) * 100.0)
 }

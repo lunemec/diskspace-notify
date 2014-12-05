@@ -7,8 +7,7 @@ import (
 )
 
 type Event struct {
-	percentAvail float32
-	mountPoint   string
+	eventData *MountPoint
 }
 
 const emailTemplate = `From: %v
@@ -17,11 +16,6 @@ Subject: %v
 
 %v
 `
-
-// Creates notification event. These events will be collected and sent in one email.
-func GetEvent(percentAvail float32, mountPoint string) *Event {
-	return &Event{percentAvail: percentAvail, mountPoint: mountPoint}
-}
 
 // Collects all notification events and sends them according to config settings.
 func SendNotification(eventQueue chan *Event) error {
@@ -45,8 +39,10 @@ func SendNotification(eventQueue chan *Event) error {
 	for event := range eventQueue {
 		body += fmt.Sprintf(
 			Config.Mail.Message+"\n",
-			event.mountPoint,
-			event.percentAvail,
+			event.eventData.mountPoint,
+			event.eventData.percentAvail,
+			event.eventData.freeSpace,
+			event.eventData.totalSize,
 		)
 	}
 

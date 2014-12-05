@@ -20,7 +20,7 @@ type ConfigData struct {
 	}
 	Check struct {
 		Delay      int
-		Threshold  float32
+		Threshold  uint8
 		Mountpoint []string
 	}
 }

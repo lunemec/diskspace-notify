@@ -53,8 +53,7 @@ func main() {
 
 	var (
 		event        *Event
-		mountPoint   string
-		percentAvail float32
+		percentAvail uint8
 	)
 
 	// Parse command line arguments.
@@ -71,15 +70,14 @@ func main() {
 	Logger.Printf("Starting ...")
 
 	for {
-		// buffered event queue
-		EventQueue := make(chan *Event, 100)
+		// Buffered event queue.
+		EventQueue := make(chan *Event, len(Config.Check.Mountpoint))
 
-		for mountPointData := range GetMountPointData() {
+		for mountPointData := range MountPointData() {
 			percentAvail = mountPointData.percentAvail
-			mountPoint = mountPointData.mountPoint
 
 			if percentAvail <= Config.Check.Threshold {
-				event = GetEvent(percentAvail, mountPoint)
+				event = &Event{eventData: mountPointData}
 				EventQueue <- event
 			}
 		}
