@@ -29,11 +29,9 @@ func initLog(logFilePath *string) {
 
 	if *logFilePath != "" {
 		f, err := os.OpenFile(*logFilePath, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
-
 		if err != nil {
-			log.Fatal("Can't open file for logging, error: %v\n", err)
+			log.Fatal("Can't open file for logging, error: %v.\n", err)
 		}
-
 		logFile = f
 	}
 
@@ -44,23 +42,22 @@ func initLog(logFilePath *string) {
 func initConfig(configFile *string) {
 	Config, err = LoadConfig(*configFile)
 	if err != nil {
-		Logger.Fatal("Can't load configuration file %s, error: %s\n", *configFile, err)
+		Logger.Fatal("Can't load configuration file %s, error: %s.\n", *configFile, err)
 	}
 }
 
 // Sends Email only after antiSpamDelay has passed (3600s default)
 // after the email was sent for the first time.
-func sendEmail(EventQueue chan *Event, emailSent bool, antiSpamDelay time.Duration) bool {
-
+func sendEmail(mountPoints []*MountPoint, emailSent bool, antiSpamDelay time.Duration) bool {
 	if emailSent {
 		if time.Since(emailSendTime) >= antiSpamDelay {
-			err = SendNotification(EventQueue)
+			err = SendNotification(mountPoints)
 			if err == nil {
 				emailSent = true
 			}
 		}
 	} else {
-		err = SendNotification(EventQueue)
+		err = SendNotification(mountPoints)
 		if err == nil {
 			emailSent = true
 			emailSendTime = time.Now()
@@ -73,9 +70,8 @@ func sendEmail(EventQueue chan *Event, emailSent bool, antiSpamDelay time.Durati
 func main() {
 
 	var (
-		emailSent    = false
-		event        *Event
-		percentAvail uint8
+		mountPoints []*MountPoint
+		emailSent   = false
 	)
 
 	// Parse command line arguments.
@@ -96,22 +92,8 @@ func main() {
 	sleepDelay := time.Duration(Config.Check.Delay) * time.Second
 
 	for {
-		// Buffered event queue.
-		// We need buffering to make a simple queue where we put data from all
-		// mountpoints first and send complete email with all mountpoint information.
-		EventQueue := make(chan *Event, len(Config.Check.Mountpoint))
-
-		for mountPointData := range MountPointData() {
-			percentAvail = mountPointData.percentAvail
-
-			if percentAvail <= Config.Check.Threshold {
-				event = &Event{eventData: mountPointData}
-				EventQueue <- event
-			}
-		}
-
-		close(EventQueue)
-		emailSent = sendEmail(EventQueue, emailSent, antiSpamDelay)
+		mountPoints = MountPointData()
+		emailSent = sendEmail(mountPoints, emailSent, antiSpamDelay)
 		time.Sleep(sleepDelay)
 	}
 }

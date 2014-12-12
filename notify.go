@@ -6,10 +6,6 @@ import (
 	"strings"
 )
 
-type Event struct {
-	eventData *MountPoint
-}
-
 const emailTemplate = `From: %v
 To: %v
 Subject: %v
@@ -18,9 +14,9 @@ Subject: %v
 `
 
 // Collects all notification events and sends them according to config settings.
-func SendNotification(eventQueue chan *Event) error {
+func SendNotification(mountPoints []*MountPoint) error {
 	// Do nothing without data in Queue.
-	if len(eventQueue) == 0 {
+	if len(mountPoints) == 0 {
 		return nil
 	}
 
@@ -36,13 +32,13 @@ func SendNotification(eventQueue chan *Event) error {
 
 	body := ""
 
-	for event := range eventQueue {
+	for _, data := range mountPoints {
 		body += fmt.Sprintf(
 			Config.Mail.Message+"\n",
-			event.eventData.mountPoint,
-			event.eventData.percentAvail,
-			event.eventData.freeSpace,
-			event.eventData.totalSize,
+			data.mountPoint,
+			data.percentAvail,
+			data.freeSpace,
+			data.totalSize,
 		)
 	}
 
@@ -62,7 +58,7 @@ func SendNotification(eventQueue chan *Event) error {
 		[]byte(message),
 	)
 	if err != nil {
-		Logger.Printf("Error while sending email: %v", err)
+		Logger.Printf("Error while sending email: %v.\n", err)
 	}
 	Logger.Printf("Sent notification.")
 
