@@ -26,7 +26,7 @@ Usage
 
 Note: It cannot daemonize itself, you should use some startup manager (init.d or supervisor).
 
-If you want to see how the email looks like, you can set **threshold** value in your config to 100 to make the program send you an email.
+If you want to see how the email looks like, you can set **threshold** value in your config to 99 to make the program send you an email.
 
 
 **Ideas are welcome!**

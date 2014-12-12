@@ -2,6 +2,7 @@ package main
 
 import (
 	"code.google.com/p/gcfg"
+	"fmt"
 )
 
 type ConfigData struct {
@@ -29,7 +30,14 @@ type ConfigData struct {
 // and returns pointer to it.
 func LoadConfig(configFile string) (*ConfigData, error) {
 	var config ConfigData
+	min := uint8(0)
+	max := uint8(100)
 
 	err := gcfg.ReadFileInto(&config, configFile)
+
+	if config.Check.Threshold <= min || config.Check.Threshold >= max {
+		err = fmt.Errorf("Wrong config value, threshold must be larger than 0 and lower than 100.")
+	}
+
 	return &config, err
 }

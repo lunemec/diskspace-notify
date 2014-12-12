@@ -13,7 +13,6 @@ var (
 	configFile  = flag.String("config", "", "Path to config file.")
 	logFilePath = flag.String("log", "", "Path to log file.")
 
-	emailSent     = false
 	emailSendTime time.Time
 	err           error
 	fsStat        *syscall.Statfs_t
@@ -49,9 +48,32 @@ func initConfig(configFile *string) {
 	}
 }
 
+// Sends Email only after antiSpamDelay has passed (3600s default)
+// after the email was sent for the first time.
+func sendEmail(EventQueue chan *Event, emailSent bool, antiSpamDelay time.Duration) bool {
+
+	if emailSent {
+		if time.Since(emailSendTime) >= antiSpamDelay {
+			err = SendNotification(EventQueue)
+			if err == nil {
+				emailSent = true
+			}
+		}
+	} else {
+		err = SendNotification(EventQueue)
+		if err == nil {
+			emailSent = true
+			emailSendTime = time.Now()
+		}
+	}
+
+	return emailSent
+}
+
 func main() {
 
 	var (
+		emailSent    = false
 		event        *Event
 		percentAvail uint8
 	)
@@ -69,8 +91,14 @@ func main() {
 
 	Logger.Printf("Starting ...")
 
+	// Set delays, these must be set after config is initialized.
+	antiSpamDelay := time.Duration(Config.Smtp.AntiSpamDelay) * time.Second
+	sleepDelay := time.Duration(Config.Check.Delay) * time.Second
+
 	for {
 		// Buffered event queue.
+		// We need buffering to make a simple queue where we put data from all
+		// mountpoints first and send complete email with all mountpoint information.
 		EventQueue := make(chan *Event, len(Config.Check.Mountpoint))
 
 		for mountPointData := range MountPointData() {
@@ -81,24 +109,9 @@ func main() {
 				EventQueue <- event
 			}
 		}
+
 		close(EventQueue)
-
-		// Anti-spam measure.
-		if emailSent {
-			if time.Since(emailSendTime) >= time.Duration(Config.Smtp.AntiSpamDelay)*time.Second {
-				err = SendNotification(EventQueue)
-				if err == nil {
-					emailSent = true
-				}
-			}
-		} else {
-			err = SendNotification(EventQueue)
-			if err == nil {
-				emailSent = true
-				emailSendTime = time.Now()
-			}
-		}
-
-		time.Sleep(time.Duration(Config.Check.Delay) * time.Second)
+		emailSent = sendEmail(EventQueue, emailSent, antiSpamDelay)
+		time.Sleep(sleepDelay)
 	}
 }
