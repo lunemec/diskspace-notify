@@ -2,17 +2,18 @@ Diskspace-notifier
 ==================
 Checks periodically for free disk space and alerts user via email when there is not enough free space (threshold set in config).
 
-It does not aim to replace any large monitoring tools, it was an excercise to learn **Go** and maybe create something useful.
+It does not aim to replace any large monitoring tools, it is an excercise to learn **Go** and maybe create something useful.
 
-Goals
------
+Features
+--------
 * Super simple and lightweight.
+* Configurable plaintext email messages.
 * Check free disk space each X seconds (configurable).
-* When free disk space crosses threshold (configurable in %) send notification.
-* Since checking uses Statfs, it should be async.
-* Sending email should not be async, we could get in trouble - starting next cycle before the previous email was sent for example.
-* It should keep timestamp of last email notification and keep it in mind in the next cycle (not to SPAM).
-* It should either be able to log to a file or to stdout (for start managers).
+* When free disk space crosses threshold (configurable in %), send notification.
+* Asynchronous free space checking.
+* Sends email only after all mountpoints are checked.
+* Sends email only once in X seconds (configurable).
+* Can log to stdout or to logfile.
 
 
 Usage
