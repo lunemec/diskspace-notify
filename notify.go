@@ -15,11 +15,6 @@ Subject: %v
 
 // Collects all notification events and sends them according to config settings.
 func SendNotification(mountPoints []*MountPoint) error {
-	// Do nothing without data in Queue.
-	if len(mountPoints) == 0 {
-		return nil
-	}
-
 	var err error
 
 	auth := smtp.PlainAuth(
@@ -58,9 +53,9 @@ func SendNotification(mountPoints []*MountPoint) error {
 		[]byte(message),
 	)
 	if err != nil {
-		Logger.Printf("Error while sending email: %v.\n", err)
+		Logger.Printf("Error while sending email: %v.", err)
+	} else {
+		Logger.Printf("Sent notification.")
 	}
-	Logger.Printf("Sent notification.")
-
 	return err
 }

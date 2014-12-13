@@ -44,7 +44,7 @@ func CheckMountPoint(c chan *MountPoint, mountPoint string) {
 	statfs, err := mountPointStatus(mountPoint)
 
 	if err != nil {
-		Logger.Printf("Unable to get statfs data for mount point %q: %v.\n", mountPoint, err)
+		Logger.Printf("Unable to get statfs data for mount point %q: %v.", mountPoint, err)
 	}
 
 	// We want to check threshold before creating data so we don't waste resources.

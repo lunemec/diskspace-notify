@@ -30,7 +30,7 @@ func initLog(logFilePath *string) {
 	if *logFilePath != "" {
 		f, err := os.OpenFile(*logFilePath, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 		if err != nil {
-			log.Fatal("Can't open file for logging, error: %v.\n", err)
+			log.Fatal("Can't open file for logging, error: %v.", err)
 		}
 		logFile = f
 	}
@@ -42,7 +42,7 @@ func initLog(logFilePath *string) {
 func initConfig(configFile *string) {
 	Config, err = LoadConfig(*configFile)
 	if err != nil {
-		Logger.Fatal("Can't load configuration file %s, error: %s.\n", *configFile, err)
+		Logger.Fatal("Can't load configuration file %s, error: %s.", *configFile, err)
 	}
 }
 
@@ -50,6 +50,7 @@ func initConfig(configFile *string) {
 // after the email was sent for the first time.
 func sendEmail(mountPoints []*MountPoint, emailSent bool, antiSpamDelay time.Duration) bool {
 	if emailSent {
+		Logger.Printf("Sent email. Waiting %vs before next email.", Config.Smtp.AntiSpamDelay)
 		if time.Since(emailSendTime) >= antiSpamDelay {
 			err = SendNotification(mountPoints)
 			if err == nil {
@@ -58,7 +59,9 @@ func sendEmail(mountPoints []*MountPoint, emailSent bool, antiSpamDelay time.Dur
 		}
 	} else {
 		err = SendNotification(mountPoints)
-		if err == nil {
+		if err != nil {
+			Logger.Printf("Error while sending email: %v.", err)
+		} else {
 			emailSent = true
 			emailSendTime = time.Now()
 		}
@@ -93,7 +96,10 @@ func main() {
 
 	for {
 		mountPoints = MountPointData()
-		emailSent = sendEmail(mountPoints, emailSent, antiSpamDelay)
+		if len(mountPoints) > 0 {
+			emailSent = sendEmail(mountPoints, emailSent, antiSpamDelay)
+		}
+
 		time.Sleep(sleepDelay)
 	}
 }
