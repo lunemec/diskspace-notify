@@ -26,6 +26,12 @@ type ConfigData struct {
 	}
 }
 
+
+// Checks required items in config and returns errors.
+func checkRequired(config *ConfigData) error {
+
+}
+
 // Loads configuration file located under `configFile` path
 // and returns pointer to it.
 func LoadConfig(configFile string) (*ConfigData, error) {
@@ -34,6 +40,11 @@ func LoadConfig(configFile string) (*ConfigData, error) {
 	max := uint8(100)
 
 	err := gcfg.ReadFileInto(&config, configFile)
+	if err != nil {
+	
+	}
+	err := checkRequired(&config)
+	err := 
 
 	if config.Check.Threshold <= min || config.Check.Threshold >= max {
 		err = fmt.Errorf("Wrong config value, threshold must be larger than 0 and lower than 100.")
