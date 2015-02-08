@@ -1,4 +1,10 @@
-[mail]
+package main
+
+import (
+	"fmt"
+)
+
+const defaultConf string = `[mail]
 from = nospam@test.com
 sendto = nospam@test.com
 ;sendto = other@address.com
@@ -20,3 +26,9 @@ mountpoint = /mnt/other_drive
 ;threshold - percent of minimum free space, notification will occur after crossing the threshold
 ;threshold = 10
 ;delay = 10  ;check every x seconds
+`
+
+// Prints default config to stdout.
+func PrintDefaultConfig() {
+	fmt.Printf(defaultConf)
+}

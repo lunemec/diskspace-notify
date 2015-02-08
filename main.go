@@ -10,8 +10,9 @@ import (
 )
 
 var (
-	configFile  = flag.String("config", "", "Path to config file.")
-	logFilePath = flag.String("log", "", "Path to log file.")
+	configFile    = flag.String("config", "", "Path to config file.")
+	logFilePath   = flag.String("log", "", "Path to log file.")
+	defaultConfig = flag.Bool("defaultconfig", false, "Prints default config to stdout.")
 
 	emailSendTime time.Time
 	err           error
@@ -79,6 +80,10 @@ func main() {
 
 	// Parse command line arguments.
 	flag.Parse()
+	if *defaultConfig == true {
+		PrintDefaultConfig()
+		os.Exit(0)
+	}
 	if *configFile == "" {
 		log.Printf("Config argument required. \n\n")
 		flag.PrintDefaults()

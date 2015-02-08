@@ -19,11 +19,15 @@ Features
 Usage
 -----
 
+    # create config (and edit it with your information)
+    ./diskspace-notify -defaultconfig > /path/to.conf
+
     # normal
-    ./diskspace-notify -config="/path/to.conf"
+    ./diskspace-notify -config /path/to.conf
 
     # with logging
-    ./diskspace-notify -config="/path/to.conf" -log="/path/to.log"
+    ./diskspace-notify -config /path/to.conf -log /path/to.log
+
 
 Note: It cannot daemonize itself, you should use some startup manager (init.d or supervisor).
 
