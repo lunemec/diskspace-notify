@@ -25,7 +25,7 @@ func mountPointStatus(mountpoint string) (*syscall.Statfs_t, error) {
 // percentAvailable calculates how many percent are available given input statfs data.
 func percentAvailable(statfs *syscall.Statfs_t) uint8 {
 	if statfs.Blocks == 0 {
-		return 0
+		return uint8(0)
 	}
 	return uint8(float32(statfs.Bavail) / float32(statfs.Blocks) * 100.0)
 }
