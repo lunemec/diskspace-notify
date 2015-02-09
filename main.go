@@ -51,7 +51,8 @@ func initConfig(configFile *string) {
 // after the email was sent for the first time.
 func sendEmail(mountPoints []*MountPoint, emailSent bool, antiSpamDelay time.Duration) bool {
 	if emailSent {
-		Logger.Printf("Sent email. Waiting %vs before next email.\n", Config.Smtp.AntiSpamDelay)
+		waiting := int((antiSpamDelay - time.Since(emailSendTime)).Seconds())
+		Logger.Printf("Email already sent. Waiting %vs before next email.\n", waiting)
 		if time.Since(emailSendTime) >= antiSpamDelay {
 			err = SendNotification(mountPoints)
 			if err == nil {

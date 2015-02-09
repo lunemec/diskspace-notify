@@ -9,7 +9,7 @@ from = nospam@test.com
 sendto = nospam@test.com
 ;sendto = other@address.com
 subject = My subject
-message = Running out of space: mountpoint %v, remaining free space %v%% (%v of %v)
+message = Running out of space: mountpoint %%v, remaining free space %%v%%%% (%%v of %%v)
 
 [smtp]
 address = smtp.test.com
@@ -21,7 +21,7 @@ password = xxx
 
 [check]
 mountpoint = /
-mountpoint = /mnt/other_drive
+;mountpoint = /mnt/other_drive
 
 ;threshold - percent of minimum free space, notification will occur after crossing the threshold
 ;threshold = 10
