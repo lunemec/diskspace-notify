@@ -49,5 +49,10 @@ or
 
 Build
 -----
+Install packages from DEPENDENCIES.
 
-    go build -o diskspace-notify src/*.go
+    go get `cat DEPENDENCIES`
+
+Build.
+
+    go build
