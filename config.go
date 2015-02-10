@@ -2,6 +2,7 @@ package main
 
 import (
 	"code.google.com/p/gcfg"
+	"errors"
 	"fmt"
 )
 
@@ -26,6 +27,8 @@ type ConfigData struct {
 	}
 }
 
+type errorlist []error
+
 const configError string = "Config file rror: "
 
 // Default config values.
@@ -34,82 +37,48 @@ const defaultAntiSpamDelay int = 3600
 const defaultDelay int = 10
 const defaultThreshold uint8 = uint8(10)
 
-// Returns `true` if all items in array are true.
-func all(values []bool) bool {
-	result := true
-	for _, value := range values {
-		if !value {
-			result = false
-		}
-	}
-
-	return result
-}
-
-func checkIntField(configValue int, nullValue int, errorMsg string, logit bool) bool {
-	if configValue == nullValue {
-		if logit {
-			Logger.Printf("%v%v\n", configError, errorMsg)
-		}
-		return false
-	}
-
-	return true
-}
-
-func checkUint8Field(configValue uint8, nullValue uint8, errorMsg string, logit bool) bool {
-	if configValue == nullValue {
-		if logit {
-			Logger.Printf("%v%v\n", configError, errorMsg)
-		}
-		return false
-	}
-
-	return true
-}
-
-func checkStringField(configValue string, nullValue string, errorMsg string, logit bool) bool {
-	if configValue == nullValue {
-		if logit {
-			Logger.Printf("%v%v\n", configError, errorMsg)
-		}
-		return false
-	}
-
-	return true
-}
-
-func checkStringArrayField(configValue []string, length int, errorMsg string, logit bool) bool {
-	if len(configValue) == length {
-		if logit {
-			Logger.Printf("%v%v\n", configError, errorMsg)
-		}
-		return false
-	}
-
-	return true
+func (e *errorlist) Add(err string) {
+	*e = append(*e, errors.New(err))
 }
 
 // Checks required items in config and returns errors.
 func checkRequired(config *ConfigData) error {
-	var ok []bool
-	ok = make([]bool, 8)
+	var errs errorlist
 
 	// [mail] section check.
-	ok[0] = checkStringField(config.Mail.From, "", "[mail] `from` is required.", true)
-	ok[1] = checkStringArrayField(config.Mail.Sendto, 0, "[mail] `sendto` is required.", true)
-	ok[2] = checkStringField(config.Mail.Subject, "", "[mail] `subject` is required.", true)
-	ok[3] = checkStringField(config.Mail.Message, "", "[mail] `message` is required.", true)
+	if config.Mail.From == "" {
+		errs.Add("[mail] `from` is required.")
+	}
+	if len(config.Mail.Sendto) == 0 {
+		errs.Add("[mail] `sendto` is required.")
+	}
+	if config.Mail.Subject == "" {
+		errs.Add("[mail] `subject` is required.")
+	}
+	if config.Mail.Message == "" {
+		errs.Add("[mail] `message` is required.")
+	}
 
 	// [smtp] section check.
-	ok[4] = checkStringField(config.Smtp.Address, "", "[smtp] `address` is required.", true)
-	ok[5] = checkStringField(config.Smtp.Username, "", "[smtp] `username` is required.", true)
-	ok[6] = checkStringField(config.Smtp.Password, "", "[smtp] `password` is required.", true)
+	if config.Smtp.Address == "" {
+		errs.Add("[smtp] `address` is required.")
+	}
+	if config.Smtp.Username == "" {
+		errs.Add("[smtp] `username` is required.")
+	}
+	if config.Smtp.Password == "" {
+		errs.Add("[smtp] `password` is required.")
+	}
 
 	// [check] section check.
-	ok[7] = checkStringArrayField(config.Check.Mountpoint, 0, "[check] `mountpoint` is required.", true)
+	if len(config.Check.Mountpoint) == 0 {
+		errs.Add("[check] `mountpoint` is required.")
+	}
 
-	if !all(ok) {
+	if len(errs) != 0 {
+		for _, err := range errs {
+			Logger.Printf("%v\n", err)
+		}
 		return fmt.Errorf("some required config items is missing.")
 	}
 	return nil
@@ -117,23 +86,16 @@ func checkRequired(config *ConfigData) error {
 
 // Check if not-required values are set, and if not, fill in defaults.
 func checkDefaults(config *ConfigData) {
-	ok := checkIntField(config.Smtp.Port, 0, "", false)
-	if !ok {
+	if config.Smtp.Port == 0 {
 		config.Smtp.Port = defaultPort
 	}
-
-	ok = checkIntField(config.Smtp.AntiSpamDelay, 0, "", false)
-	if !ok {
+	if config.Smtp.AntiSpamDelay == 0 {
 		config.Smtp.AntiSpamDelay = defaultAntiSpamDelay
 	}
-
-	ok = checkIntField(config.Check.Delay, 0, "", false)
-	if !ok {
+	if config.Check.Delay == 0 {
 		config.Check.Delay = defaultDelay
 	}
-
-	ok = checkUint8Field(config.Check.Threshold, uint8(0), "", false)
-	if !ok {
+	if config.Check.Threshold == uint8(0) {
 		config.Check.Threshold = defaultThreshold
 	}
 }
