@@ -27,7 +27,7 @@ type ConfigData struct {
 	}
 }
 
-const configError string = "Config file rror: "
+const configError string = "Config file error: "
 
 // Default config values.
 const defaultPort int = 25
