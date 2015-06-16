@@ -12,6 +12,8 @@ subject = My subject
 message = Running out of space: mountpoint %%v, remaining free space %%v%%%% (%%v of %%v)
 
 [smtp]
+;auth - enable/disable SMTP Authentication
+auth = True
 address = smtp.test.com
 username = usename@test.com
 password = xxx

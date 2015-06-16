@@ -17,12 +17,17 @@ Subject: %v
 func SendNotification(mountPoints []*MountPoint) error {
 	var err error
 
-	auth := smtp.PlainAuth(
-		"",
-		Config.Smtp.Username,
-		Config.Smtp.Password,
-		Config.Smtp.Address,
-	)
+	var auth smtp.Auth
+	if Config.Smtp.Auth {
+		auth = smtp.PlainAuth(
+			"",
+			Config.Smtp.Username,
+			Config.Smtp.Password,
+			Config.Smtp.Address,
+		)
+	} else {
+		auth = nil
+	}
 	serverAddr := fmt.Sprintf("%v:%d", Config.Smtp.Address, Config.Smtp.Port)
 
 	body := ""

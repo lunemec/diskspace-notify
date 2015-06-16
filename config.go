@@ -13,6 +13,7 @@ type ConfigData struct {
 		Message string
 	}
 	Smtp struct {
+		Auth          bool
 		Address       string
 		Port          int
 		Username      string
@@ -36,14 +37,13 @@ const defaultThreshold uint8 = uint8(10)
 
 // Returns `true` if all items in array are true.
 func all(values []bool) bool {
-	result := true
 	for _, value := range values {
 		if !value {
-			result = false
+			return false
 		}
 	}
 
-	return result
+	return true
 }
 
 func checkIntField(configValue int, nullValue int, errorMsg string, logit bool) bool {
@@ -92,22 +92,23 @@ func checkStringArrayField(configValue []string, length int, errorMsg string, lo
 
 // Checks required items in config and returns errors.
 func checkRequired(config *ConfigData) error {
-	var ok []bool
-	ok = make([]bool, 8)
+	ok := []bool{}
 
 	// [mail] section check.
-	ok[0] = checkStringField(config.Mail.From, "", "[mail] `from` is required.", true)
-	ok[1] = checkStringArrayField(config.Mail.Sendto, 0, "[mail] `sendto` is required.", true)
-	ok[2] = checkStringField(config.Mail.Subject, "", "[mail] `subject` is required.", true)
-	ok[3] = checkStringField(config.Mail.Message, "", "[mail] `message` is required.", true)
+	ok = append(ok, checkStringField(config.Mail.From, "", "[mail] `from` is required.", true))
+	ok = append(ok, checkStringArrayField(config.Mail.Sendto, 0, "[mail] `sendto` is required.", true))
+	ok = append(ok, checkStringField(config.Mail.Subject, "", "[mail] `subject` is required.", true))
+	ok = append(ok, checkStringField(config.Mail.Message, "", "[mail] `message` is required.", true))
 
 	// [smtp] section check.
-	ok[4] = checkStringField(config.Smtp.Address, "", "[smtp] `address` is required.", true)
-	ok[5] = checkStringField(config.Smtp.Username, "", "[smtp] `username` is required.", true)
-	ok[6] = checkStringField(config.Smtp.Password, "", "[smtp] `password` is required.", true)
+	ok = append(ok, checkStringField(config.Smtp.Address, "", "[smtp] `address` is required.", true))
+	// Check Username only when SMTP Auth is enabled. Password may be empty.
+	if config.Smtp.Auth {
+		ok = append(ok, checkStringField(config.Smtp.Username, "", "[smtp] `username` is required.", true))
+	}
 
 	// [check] section check.
-	ok[7] = checkStringArrayField(config.Check.Mountpoint, 0, "[check] `mountpoint` is required.", true)
+	ok = append(ok, checkStringArrayField(config.Check.Mountpoint, 0, "[check] `mountpoint` is required.", true))
 
 	if !all(ok) {
 		return fmt.Errorf("some required config items is missing.")
