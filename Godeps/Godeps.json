@@ -1,0 +1,14 @@
+{
+	"ImportPath": "diskspace-notify",
+	"GoVersion": "go1.4.2",
+	"Deps": [
+		{
+			"ImportPath": "code.google.com/p/gcfg",
+			"Rev": "c2d3050044d05357eaf6c3547249ba57c5e235cb"
+		},
+		{
+			"ImportPath": "github.com/dustin/go-humanize",
+			"Rev": "b198514c204f20799b91c93b6ffd8b26be04c2c9"
+		}
+	]
+}

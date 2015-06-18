@@ -66,10 +66,14 @@ or
 
 Build
 -----
-Install packages from DEPENDENCIES.
+Install godep:
 
-    go get `cat DEPENDENCIES`
+    go get github.com/tools/godep
+
+Restore saved dependencies.
+
+    godep restore
 
 Build.
 
-    go build
+    godep go build
