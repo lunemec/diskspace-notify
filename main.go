@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"log"
 	"os"
 	"syscall"
@@ -36,7 +35,7 @@ func initLog(logFilePath *string) {
 		logFile = f
 	}
 
-	Logger = log.New(logFile, fmt.Sprintf("[%v] Diskspace-notify: ", time.Now()), log.Lshortfile)
+	Logger = log.New(logFile, "", log.Ldate|log.Ltime|log.Lmicroseconds|log.Lshortfile)
 }
 
 // Initializes configuration file under path `configFile`.
@@ -51,12 +50,16 @@ func initConfig(configFile *string) {
 // after the email was sent for the first time.
 func sendEmail(mountPoints []*MountPoint, emailSent bool, antiSpamDelay time.Duration) bool {
 	if emailSent {
-		waiting := int((antiSpamDelay - time.Since(emailSendTime)).Seconds())
+		waiting := uint64((antiSpamDelay - time.Since(emailSendTime)).Seconds())
 		Logger.Printf("Email already sent. Waiting %vs before next email.\n", waiting)
+
 		if time.Since(emailSendTime) >= antiSpamDelay {
 			err = SendNotification(mountPoints)
-			if err == nil {
+			if err != nil {
+				Logger.Printf("Error while sending email: %v.\n", err)
+			} else {
 				emailSent = true
+				emailSendTime = time.Now()
 			}
 		}
 	} else {
