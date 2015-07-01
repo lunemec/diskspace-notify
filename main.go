@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"log"
 	"os"
 	"syscall"
@@ -12,6 +13,7 @@ var (
 	configFile    = flag.String("config", "", "Path to config file.")
 	logFilePath   = flag.String("log", "", "Path to log file.")
 	defaultConfig = flag.Bool("defaultconfig", false, "Prints default config to stdout.")
+	printVersion  = flag.Bool("version", false, "Print current version.")
 
 	emailSendTime time.Time
 	err           error
@@ -20,6 +22,8 @@ var (
 	Config *ConfigData
 	Logger *log.Logger
 )
+
+const version = "Diskspace-notify 1.5 \n"
 
 // Initializes log depending on logFilePath variable.
 // If it is empty, it will log to `stderr`.
@@ -84,7 +88,11 @@ func main() {
 
 	// Parse command line arguments.
 	flag.Parse()
-	if *defaultConfig == true {
+	if *printVersion {
+		fmt.Printf("%v", version)
+		os.Exit(0)
+	}
+	if *defaultConfig {
 		PrintDefaultConfig()
 		os.Exit(0)
 	}
